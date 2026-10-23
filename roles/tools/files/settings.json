@@ -3,7 +3,7 @@
     "window.zoomLevel": 2,
     "files.autoSave": "afterDelay",
     "workbench.editorAssociations": {
-        "*.ipynb": "jupyter.notebook.ipynb"
+        "*.ipynb": "jupyter-notebook"
     },
     "redhat.telemetry.enabled": true,
     "workbench.colorTheme": "Dracula"

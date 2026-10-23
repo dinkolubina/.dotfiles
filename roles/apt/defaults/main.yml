@@ -13,11 +13,13 @@ packages:
   - silversearcher-ag
   - npm
   - git-flow
+  - gh
   - fd-find
   - bat
   - fzf
-  - neofetch
+  - fastfetch
   - tree
+  - tmux
 
   # GUI
   - chromium-browser

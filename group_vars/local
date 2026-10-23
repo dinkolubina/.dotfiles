@@ -5,3 +5,7 @@ zsh_custom: "{{ dotfiles_user_home }}/.oh-my-zsh/custom"
 full_name: Dinko Lubina
 git_user: dinkolubina
 git_email: lubinadinko@gmail.com
+# Ubuntu 25.10+ uses sudo-rs, whose password prompt Ansible doesn't recognise
+# ("Timed out waiting for become success"). Classic sudo is still installed
+# there as sudo.ws, so use it when present.
+ansible_become_exe: "{{ 'sudo.ws' if '/usr/bin/sudo.ws' is file else 'sudo' }}"

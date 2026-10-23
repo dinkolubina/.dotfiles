@@ -2,8 +2,8 @@
 # Custom setup #
 ################
 
-# Path to config file
-# ~/.config/regolith/i3/config
+# Linked to ~/.config/regolith3/i3/config.d/90_custom
+# Regolith includes it after its default partials.
 
 # Start apps upon startup
 

@@ -3,30 +3,30 @@ set -e
 
 tags="$1"
 
-if [ -z $tags ]; then
+if [ -z "$tags" ]; then
   tags="all"
 fi
 
 if ! [ -x "$(command -v ansible)" ]; then
   sudo apt update
-  sudo apt install software-properties-common
+  sudo apt install -y software-properties-common
   sudo apt-add-repository --yes --update ppa:ansible/ansible
-  sudo apt install ansible
+  sudo apt install -y ansible
   ansible-galaxy collection install community.general
 fi
 
 # Use --check for a dry run and --syntax-check for pizza delivery
-if [ $tags = "dry-run" ]; then
+if [ "$tags" = "dry-run" ]; then
   echo "Dry run started"
   ansible-playbook -i ~/.dotfiles/hosts ~/.dotfiles/dotfiles.yml --check
-elif [ $tags = "syntax-check" ]; then
+elif [ "$tags" = "syntax-check" ]; then
   echo "Syntax check started"
   ansible-playbook -i ~/.dotfiles/hosts ~/.dotfiles/dotfiles.yml --syntax-check
 else
-  ansible-playbook -i ~/.dotfiles/hosts ~/.dotfiles/dotfiles.yml --ask-become-pass --tags $tags 
+  ansible-playbook -i ~/.dotfiles/hosts ~/.dotfiles/dotfiles.yml --ask-become-pass --tags "$tags"
 fi
 
 
-if command -v terminal-notifier 1>/dev/null 2>&1; then
-  terminal-notifier -title "dotfiles: Bootstrap complete" -message "Successfully set up dev environment."
+if command -v notify-send 1>/dev/null 2>&1; then
+  notify-send "dotfiles: Bootstrap complete" "Successfully set up dev environment."
 fi

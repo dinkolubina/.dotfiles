@@ -77,4 +77,4 @@ $ dot-bootstrap syntax-check
 
 ### Ubuntu 25.10+ and sudo-rs
 
-Ubuntu 25.10 replaced `sudo` with `sudo-rs`, and older ansible-core releases don't recognise its password prompt, so runs can hang with "Timed out waiting for become success". If that happens, switch back to classic sudo with `sudo update-alternatives --config sudo`, or use a newer ansible-core.
+Ubuntu 25.10 replaced `sudo` with `sudo-rs`, and Ansible's sudo plugin doesn't recognise its password prompt ("Timed out waiting for become success"). Classic sudo is still installed as `/usr/bin/sudo.ws`, so `group_vars/local` sets `ansible_become_exe` to use it when it exists and plain `sudo` otherwise. Your system's default `sudo` is unchanged.

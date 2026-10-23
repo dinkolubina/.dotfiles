@@ -1,0 +1,8 @@
+- hosts: local
+  gather_facts: no
+  tasks:
+    - command: whoami
+      become: yes
+      become_method: sudo
+      register: w
+    - debug: msg="{{ w.stdout }}"

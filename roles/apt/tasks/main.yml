@@ -9,24 +9,20 @@
 
 - name: Install apt packages
   apt:
-    name: "{{ item }}"
+    name: "{{ packages }}"
     update_cache: yes
   become: yes
   become_user: root
   become_method: sudo
-  loop: "{{ packages }}"
   when: not ansible_check_mode
-
 
 - name: Remove apt packages
   apt:
-    name: "{{ item }}"
-    update_cache: yes
+    name: "{{ remove_packages }}"
     state: absent
   become: yes
   become_user: root
   become_method: sudo
-  loop: "{{ remove_packages }}"
   when: not ansible_check_mode
 
 - name: Create ~/.local/bin directory for bat
@@ -40,26 +36,25 @@
     dest: "{{ dotfiles_user_home }}/.local/bin/bat"
     state: link
 
-- name: Add custom Regolith Xresources
+# Regolith 3 reads user config from ~/.config/regolith3/.
+# Files in i3/config.d/ are included after Regolith's own defaults, so we add
+# a partial instead of copying and patching the whole i3 config.
+- name: Create Regolith config directories
+  file:
+    path: "{{ dotfiles_user_home }}/.config/regolith3/i3/config.d"
+    state: directory
+
+- name: Link custom Regolith Xresources
   file:
     src: "{{ dotfiles_home }}/roles/apt/files/Xresources"
-    dest: "{{ dotfiles_user_home }}/.config/regolith/Xresources"
+    dest: "{{ dotfiles_user_home }}/.config/regolith3/Xresources"
     state: link
 
-- name: Check for presence of the custom Regolith config
-  stat: path="{{ dotfiles_user_home }}/.config/regolith/i3/config"
-  register: basic_regolith_config
-
-- name: Copy basic Regolith config file
-  command: "cp /etc/regolith/i3/config {{ dotfiles_user_home }}/.config/regolith/i3/config"
-  args:
-    creates: "{{ dotfiles_user_home }}/.config/regolith/i3/config"
-  when: not basic_regolith_config.stat.exists
-
-- name: Link additional config settings
-  blockinfile:
-    block: "{{ lookup('file', '~/.dotfiles/roles/apt/files/config') }}"
-    path: "{{ dotfiles_user_home }}/.config/regolith/i3/config"
+- name: Link custom Regolith i3 partial
+  file:
+    src: "{{ dotfiles_home }}/roles/apt/files/config"
+    dest: "{{ dotfiles_user_home }}/.config/regolith3/i3/config.d/90_custom"
+    state: link
 
 - name: Link fdfind to fd
   file:

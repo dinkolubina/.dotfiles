@@ -15,9 +15,6 @@ Terminal tools are mostly inspired by [ this article ](https://remysharp.com/201
 
 - snap
   - VS code
-  - sublime
-  - telegram
-  - skype
   - spotify
 - apt
   - redis 
@@ -35,16 +32,28 @@ X11 implementation. It provides an interface to X selections ("the clipboard")
 from the command line.
   - [ silversearcher-ag ](https://github.com/ggreer/the_silver_searcher) - A code searching tool similar to ack, with a focus on speed.
   - git-flow
+  - [ gh ](https://cli.github.com/) - GitHub CLI, used by the `issues` and `url` git aliases
   - [ fd-find ](https://github.com/sharkdp/fd)
+  - [ bat ](https://github.com/sharkdp/bat)
+  - [ fastfetch ](https://github.com/fastfetch-cli/fastfetch) - system info (`sys-info` alias)
+  - tree
+  - tmux
 - npm
     - [ tldr ](https://github.com/tldr-pages/tldr) - The tldr pages are a community effort to simplify man pages with practical examples.
-    - 
 - custom installation
     - [ diff-so-fancy ](https://github.com/so-fancy/diff-so-fancy) - strives to make your diffs human readable instead of machine readable. This helps improve code quality and helps you spot defects faster.
 
   # GUI
   - chromium-browser
-  - [ regolith ](https://regolith-linux.org/) - Regolith is a modern desktop environment designed to let you work faster by reducing unnecessary clutter and ceremony. Built on top of Ubuntu, GNOME, and i3.  
+  - [ regolith ](https://regolith-desktop.com/) - Regolith is a modern desktop environment designed to let you work faster by reducing unnecessary clutter and ceremony. Built on top of Ubuntu, GNOME, and i3.
+
+### Regolith
+
+Regolith itself is installed manually (see the [install guide](https://regolith-desktop.com/docs/using-regolith/install/)). The playbook only links the custom config, which targets Regolith 3:
+
+- `roles/apt/files/Xresources` → `~/.config/regolith3/Xresources` (apply with `regolith-look refresh`)
+- `roles/apt/files/config` → `~/.config/regolith3/i3/config.d/90_custom` (loaded after Regolith's default partials)
+
 ## Bootstrap
 
 First setup installation run the dot-bootstrap command.
@@ -65,3 +74,7 @@ $ dot-bootstrap dry-run
 
 $ dot-bootstrap syntax-check
 ```
+
+### Ubuntu 25.10+ and sudo-rs
+
+Ubuntu 25.10 replaced `sudo` with `sudo-rs`, and older ansible-core releases don't recognise its password prompt, so runs can hang with "Timed out waiting for become success". If that happens, switch back to classic sudo with `sudo update-alternatives --config sudo`, or use a newer ansible-core.

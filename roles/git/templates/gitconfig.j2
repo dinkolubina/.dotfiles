@@ -1,6 +1,4 @@
 # Inspired by https://gggritso.com/human-git-aliases
-[hub]
-        protocol = https
 [user]
         name = {{ full_name }}
         email = {{ git_email }}
@@ -19,7 +17,7 @@
 
         fold = commit --amend --no-edit
         last = log -1 HEAD --format=format:"%Cred%H"
-        copy-last-hash = !git last | pbcopy
+        copy-last-hash = !git last | xclip -sel clip
         summary = status -u -s
         contributors = shortlog -s -n --no-merges
         file-trail = log --follow -p -w
@@ -64,24 +62,21 @@
         dfc = "!dfc() { git df $1^ $1; }; dfc"
 
         please = push --force-with-lease
-        publish = "!git push -u origin $(git rev-parse --abbrev-ref HEAD)"
         # publish current branch
         publish = "!f() { git push -u ${1:-origin} $(git rev-parse --abbrev-ref HEAD); }; f"
 
         # http://gggritso.com/human-git-aliases
         unstage = reset -q HEAD --
-        discard = checkout --
-        uncommit = reset --mixed HEAD~
 
         l = log --graph --decorate --oneline --abbrev-commit --all
         h = log --graph --decorate --oneline --abbrev-commit
 
-        issues = !hub browse -- issues
-        url = "!f() { sha=$(git rev-parse ${1:-HEAD}); hub browse -u -- commit/$sha; }; f"
-        # Copy current branch name to clipboard (macOS only)
-        cb = "!git rev-parse --abbrev-ref HEAD | tr -d '\n' | pbcopy"
+        issues = !gh issue list --web
+        url = "!f() { gh browse --no-browser $(git rev-parse ${1:-HEAD}); }; f"
+        # Copy current branch name to clipboard
+        cb = "!git rev-parse --abbrev-ref HEAD | tr -d '\n' | xclip -sel clip"
 
-        remote-branches = "!f() { git ls-remote --heads ${1:origin} | sed 's?.*refs/heads/??'; }; f "
+        remote-branches = "!f() { git ls-remote --heads ${1:-origin} | sed 's?.*refs/heads/??'; }; f "
 [color]
         diff = auto
         status = auto

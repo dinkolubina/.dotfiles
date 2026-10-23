@@ -1,11 +1,11 @@
 - name: Download diff-so-fancy
   git:
     repo: https://github.com/so-fancy/diff-so-fancy.git
-    dest: ~/opt/diff-so-fancy
+    dest: "{{ dotfiles_user_home }}/opt/diff-so-fancy"
     depth: 1
 
 - name: Install tldr with npm
-  npm: 
+  npm:
     name: tldr
     global: yes
   become: yes
@@ -13,55 +13,66 @@
   become_method: sudo
   when: not ansible_check_mode
 
+# A missing or retired extension shouldn't stop the whole run.
 - name: Install vscode extensions
   command: code --install-extension "{{ item }}"
   loop: "{{ extensions }}"
+  register: vscode_extension
+  changed_when: "'successfully installed' in vscode_extension.stdout"
+  ignore_errors: yes
+  when: not ansible_check_mode
+
+- name: Create VSCode user config directory
+  file:
+    path: "{{ dotfiles_user_home }}/.config/Code/User"
+    state: directory
 
 - name: Symlink VSCode keybindings
   file:
     src: "{{ dotfiles_home }}/roles/tools/files/keybindings.json"
     dest: "{{ dotfiles_user_home }}/.config/Code/User/keybindings.json"
     state: link
+    force: yes
 
 - name: Symlink VSCode settings
   file:
     src: "{{ dotfiles_home }}/roles/tools/files/settings.json"
     dest: "{{ dotfiles_user_home }}/.config/Code/User/settings.json"
     state: link
-
-- name: Check for .vimrc
-  stat: path="{{dotfiles_user_home}}/.vimrc"
-  register: vimrc_stat
-
-- name: Check for badwolf theme
-  stat: path="~/opt/badwolf"
-  register: badwolf_theme
+    force: yes
 
 - name: Download badwolf theme
   git:
     repo: https://github.com/sjl/badwolf.git
-    dest: ~/opt/badwolf
+    dest: "{{ dotfiles_user_home }}/opt/badwolf"
     depth: 1
-  when: not badwolf_theme.stat.exists
 
-- name: Create .vim/colours directory
+- name: Create .vim/colors directory
   file:
     path: "{{dotfiles_user_home}}/.vim/colors"
     state: directory
     mode: '0755'
 
 - name: Install Badwolf theme
-  shell: mv ~/opt/badwolf/colors/*.vim ~/.vim/colors
+  file:
+    src: "{{ dotfiles_user_home }}/opt/badwolf/colors/badwolf.vim"
+    dest: "{{ dotfiles_user_home }}/.vim/colors/badwolf.vim"
+    state: link
+    force: yes
+
+- name: Check for .vimrc
+  stat: path="{{dotfiles_user_home}}/.vimrc"
+  register: vimrc_stat
 
 - name: Back up .vimrc
   command: mv ~/.vimrc ~/.vimrc.bak
   args:
     creates: "{{dotfiles_user_home}}/.vimrc.bak"
-  when: vimrc_stat.stat.exists
+  when: vimrc_stat.stat.exists and not vimrc_stat.stat.islnk
 
 - name: Vimrc Symlink
   file:
     src: "{{ dotfiles_home }}/roles/tools/files/vimrc"
     dest: "{{ dotfiles_user_home }}/.vimrc"
     state: link
-
+    force: yes

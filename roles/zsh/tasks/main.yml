@@ -5,13 +5,11 @@
   become_method: sudo
   when: not ansible_check_mode
 
-- name: Check for oh-my-zsh installation
-  stat: "path=~/.oh-my-zsh"
-  register: oh_my_zsh_stat
-
 - name: Install oh-my-zsh
-  raw: "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)\""
-  when: not oh_my_zsh_stat.stat.exists
+  shell: 'KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended'
+  args:
+    creates: "{{ dotfiles_user_home }}/.oh-my-zsh"
+  when: not ansible_check_mode
 
 - name: Check for .zshrc
   stat: path="{{dotfiles_user_home}}/.zshrc"
@@ -21,18 +19,19 @@
   command: mv ~/.zshrc ~/.zshrc.bak
   args:
     creates: "{{dotfiles_user_home}}/.zshrc.bak"
-  when: zshrc_stat.stat.exists
+  when: zshrc_stat.stat.exists and not zshrc_stat.stat.islnk
 
 - name: Symlink .zshrc
   file:
     src: "{{ dotfiles_home }}/roles/zsh/files/zshrc"
     dest: "{{dotfiles_user_home}}/.zshrc"
     state: link
+    force: yes
 
 - name: Powerlevel10k theme installation
   git:
     repo: https://github.com/romkatv/powerlevel10k.git
-    dest: ~/.oh-my-zsh/custom/themes/powerlevel10k
+    dest: "{{ dotfiles_user_home }}/.oh-my-zsh/custom/themes/powerlevel10k"
     depth: 1
 
 - name: Symlink .p10k.zsh
@@ -41,27 +40,11 @@
     dest: "{{dotfiles_user_home}}/.p10k.zsh"
     state: link
 
-- name: Check for zsh poetry plugin dir
-  stat: path="{{dotfiles_user_home}}/.oh-my-zsh/plugins/poetry"
-  register: zsh_plugin_poetry_stat
-
-- name: Make Poetry completions dir
-  file: 
-    path: $ZSH/plugins/poetry
-    state: directory
-  when: not zsh_plugin_poetry_stat.stat.exists
-  when: ansible_check_mode
-
-- name: Poetry completions installation
-  shell: poetry completions zsh > $ZSH/plugins/poetry/_poetry
-  when: not zsh_plugin_poetry_stat.stat.exists
-  when: ansible_check_mode
-
 - name: Set zsh as the default shell
-  command: "chsh -s \"$(which zsh)\""
+  user:
+    name: "{{ ansible_user_id }}"
+    shell: /usr/bin/zsh
   become: yes
   become_user: root
   become_method: sudo
-  register: command_result
-  failed_when: command_result.rc != 0 or "'PAM:' not in command_result.stderr"
   when: not ansible_check_mode

@@ -14,3 +14,5 @@ wm.workspace.02.name: 2: 2 Notion
 wm.workspace.03.name: 3: 3 Terminal
 wm.workspace.04.name: 4: 4 Browser
 wm.workspace.05.name: 5: 5 Code
+
+wm.program.terminal: /usr/bin/gnome-terminal
